@@ -11,12 +11,16 @@ EPISODE_DISPLAY = 500
 LEARNING_RATE = 0.25
 EPSILON = 0.2
 MIN_EXPLORE_RATE = 0.01
+MIN_LEARNING_RATE = 0.1
 
 def get_explore_rate(t):
     return max(MIN_EXPLORE_RATE, min(1, 1.0 - math.log10((t+1)/125)))
 
 def cal_reward(angle):
     return 0 if angle > 0.10472 or angle < -0.10472 else 1
+
+def get_learning_rate(t):
+    return max(MIN_LEARNING_RATE, min(0.5, 1.0 - math.log10((t+1)/25)))
 
 #Q-Table of size theta_state_size*theta_dot_state_size*env.action_space.n
 theta_minmax = env.observation_space.high[2]
@@ -45,6 +49,7 @@ def discretised_state(state):
 
 num_train_streaks = 0
 e_rate = get_explore_rate(0)
+l_rate = get_learning_rate(0)
 for episode in range(EPISODES):
     episode_reward = 0
     done = False
@@ -90,5 +95,6 @@ for episode in range(EPISODES):
 
     ep_rewards.append(episode_reward)
     e_rate = get_explore_rate(episode)
+    l_rate = get_learning_rate(episode)
 
 env.close()

@@ -12,10 +12,10 @@ LEARNING_RATE = 0.1
 EPSILON = 0.5
 EPSILON_DECREMENTER = EPSILON/(EPISODES//4)
 MIN_EXPLORE_RATE = 0.01
+MIN_LEARNING_RATE = 0.1
 
 #Q-Table of size DISCRETE_BUCKETS*DISCRETE_BUCKETS*env.action_space.n
 Q_TABLE = np.random.randn(DISCRETE_BUCKETS,DISCRETE_BUCKETS,env.action_space.n)
-
 
 def cal_reward(x, t):
     if x < 0.36:
@@ -35,12 +35,16 @@ def cal_reward(x, t):
 def get_explore_rate(t):
     return max(MIN_EXPLORE_RATE, min(1, 1.0 - math.log10((t+1)/75)))
 
+def get_learning_rate(t):
+    return max(MIN_LEARNING_RATE, min(0.5, 1.0 - math.log10((t+1)/25)))
+
 def discretised_state(state):
     DISCRETE_WIN_SIZE = (env.observation_space.high-env.observation_space.low)/[DISCRETE_BUCKETS]*len(env.observation_space.high)
     discrete_state = (state-env.observation_space.low)//DISCRETE_WIN_SIZE
     return tuple(discrete_state.astype(np.int32))		#integer tuple as we need to use it later on to extract Q table values
 
 e_rate = get_explore_rate(0)
+l_rate = get_explore_rate(0)
 num_train_streaks = 0
 for episode in range(EPISODES):
     episode_reward = 0
@@ -83,6 +87,7 @@ for episode in range(EPISODES):
         break
 
     e_rate= get_explore_rate(episode)
+    l_rate = get_explore_rate(episode)
 
 
 
